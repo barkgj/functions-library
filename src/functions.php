@@ -17,7 +17,7 @@ final class functions
 		// for example "/srv/studios/bestwebsitetemplates/2/wordpress"
 		$parentfolder = dirname($wpdocumentroot);
 		// for example "/srv/studios/bestwebsitetemplates/2/"
-		echo "brk_getsitedatafolder:{$parentfolder}";
+		echo "getsitedatafolder:{$parentfolder}";
 		die();
 
 		// /srv/studios/bestwebsitetemplates
@@ -35,7 +35,7 @@ final class functions
 		}
 		else
 		{
-			brk_throw_nack("unable to derive studio ({$homedir})");
+			functions::throw_nack("unable to derive studio ({$homedir})");
 		}
 
 		return $result;
@@ -64,7 +64,7 @@ final class functions
 		return $result;
 	}
 
-	// public static function webmethod_return_nack is now brk_throw_nack
+	// public static function webmethod_return_nack is now throw_nack
 	public static function throw_nack($message)
 	{
 		$lasterror = json_encode(error_get_last());
@@ -73,11 +73,11 @@ final class functions
 		$stacktrace = debug_backtrace();
 		$stacktrace_json = json_encode($stacktrace);
 		$stacktrace_json_cut = substr($stacktrace_json, 0, 500);
-		error_log("brk_webmethod_return_nack;\r\n lasterror: $lasterror\r\nmessage: $message\r\ncut stacktrace: " . $stacktrace_json_cut ."\r\n\r\n");
+		error_log("webmethod_return_nack;\r\n lasterror: $lasterror\r\nmessage: $message\r\ncut stacktrace: " . $stacktrace_json_cut ."\r\n\r\n");
 		
 		// cleanup output that was possibly produced before,
 		// if we won't this could cause output to not be json compatible
-		$existingoutput = brk_outputbuffer_popall();
+		$existingoutput = functions::outputbuffer_popall();
 		
 		http_response_code(500);
 		//header($_SERVER['SERVER_PROTOCOL'] . " 500 Internal Server Error");
@@ -87,10 +87,10 @@ final class functions
 		(
 			"result" => "NACK",
 			"message" => "Halted; " . $message,
-			"stacktrace" => brk_getstacktrace(),
+			"stacktrace" => functions::getstacktrace(),
 		);
 		
-		if (brk_is_nxswebservice())
+		if (functions::is_nxswebservice())
 		{
 			// system is processing a nxs webmethod; output in json
 			$output=json_encode($output);
@@ -110,7 +110,7 @@ final class functions
 			else
 			{
 				echo "<!-- hint; in case code breaks after this comment, add querystring parameter pp with value false (pp=false) to output in non-pretty format -->";
-				echo brk_prettyprint_array($output);
+				echo functions::prettyprint_array($output);
 			}
 			echo "<br />(raw printed)<br />";
 			echo "</div>";
@@ -155,7 +155,7 @@ final class functions
 		{
 			if (is_array($val))
 			{
-			$retStr .= '<li>' . $key . ' => ' . brk_prettyprint_array($val) . '</li>';
+			$retStr .= '<li>' . $key . ' => ' . functions::prettyprint_array($val) . '</li>';
 			} 
 			else if (is_string($val))
 			{
@@ -188,11 +188,11 @@ final class functions
 	{
 		if ($args["result"] == "OK")
 		{
-			brk_webmethod_return_ok($args);
+			webmethod_return_ok($args);
 		}
 		else 
 		{
-			brk_throw_nack($args["message"]);
+			functions::throw_nack($args["message"]);
 		}
 	}
 
@@ -208,17 +208,17 @@ final class functions
 	{
 		$content = $args;
 		$content["result"] = "OK";
-		brk_webmethod_return_raw($content);
+		functions::webmethod_return_raw($content);
 	}
 
 	public static function isutf8($string) 
 	{
-	if (public static function_exists("mb_check_encoding")) 
-	{
-		return mb_check_encoding($string, 'UTF8');
-	}
+		if (function_exists("mb_check_encoding")) 
+		{
+			return mb_check_encoding($string, 'UTF8');
+		}
 
-	return (bool)preg_match('//u', serialize($string));
+		return (bool)preg_match('//u', serialize($string));
 	}
 
 	public static function toutf8string($in_str)
@@ -230,7 +230,7 @@ final class functions
 		}
 		
 		$cur_encoding = mb_detect_encoding($in_str_v2) ; 
-		if($cur_encoding == "UTF-8" && brk_isutf8($in_str_v2)) 
+		if($cur_encoding == "UTF-8" && functions::isutf8($in_str_v2)) 
 		{
 			$result = $in_str_v2; 
 		}
@@ -251,9 +251,9 @@ final class functions
 		{
 			if (is_string($resultvalue))
 			{
-				if (!brk_isutf8($resultvalue))
+				if (!functions::isutf8($resultvalue))
 				{
-					$result[$resultkey] = brk_toutf8string($resultvalue);
+					$result[$resultkey] = functions::toutf8string($resultvalue);
 				}
 
 				// also fix the special character \u00a0 (no breaking space),
@@ -262,7 +262,7 @@ final class functions
 			}
 			else if (is_array($resultvalue))
 			{
-				$result[$resultkey] = brk_array_toutf8string($resultvalue);
+				$result[$resultkey] = functions::array_toutf8string($resultvalue);
 			}
 			else
 			{
@@ -286,17 +286,17 @@ final class functions
 		$numlevels = ob_get_level();
 		for ($i = 0; $i < $numlevels; $i++)
 		{
-			$existingoutput[] = brk_ob_get_clean();
+			$existingoutput[] = ob_get_clean();
 		}
 		
-		brk_set_jsonheader(); 
+		functions::set_jsonheader(); 
 		http_response_code(200);
 
 		// add 'result' to array
 		// $args["result"] = "OK";
 		
 		// sanitize malformed utf8 (if the case)
-		$args = brk_array_toutf8string($args);
+		$args = functions::array_toutf8string($args);
 		
 		// in some very rare situations the json_encode
 		// can stall/break the execution (see support ticket 13459)
@@ -315,7 +315,7 @@ final class functions
 			}
 		}
 		
-		if ($_REQUEST["brk_json_output_format"] == "prettyprint")
+		if ($_REQUEST["json_output_format"] == "prettyprint")
 		{
 			// only works in PHP 5.4 and above
 			$options = 0;
