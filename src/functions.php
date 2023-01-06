@@ -1,17 +1,17 @@
 <?php
 
-namespace Brk;
+namespace Afnetix;
 
 final class functions
 {
-	public static function brk_getstacktrace()
+	public static function getstacktrace()
 	{
 		$result = debug_backtrace();
 		
 		return $result;
 	}
 
-	public static function brk_getsitedatafolder()
+	public static function getsitedatafolder()
 	{
 		$wpdocumentroot = $_SERVER['DOCUMENT_ROOT'];
 		// for example "/srv/studios/bestwebsitetemplates/2/wordpress"
@@ -23,7 +23,7 @@ final class functions
 		// /srv/studios/bestwebsitetemplates
 	}
 
-	public static function brk_getstudio()
+	public static function getstudio()
 	{
 		// for example /srv/studios/bestwebsitetemplates
 		$homedir =  $_SERVER['HOME'];
@@ -41,7 +41,7 @@ final class functions
 		return $result;
 	}
 
-	public static function brk_outputbuffer_popall()
+	public static function outputbuffer_popall()
 	{
 		$existingoutput = array();
 		
@@ -54,7 +54,7 @@ final class functions
 		return $existingoutput;
 	}
 
-	public static function brk_is_nxswebservice()
+	public static function is_nxswebservice()
 	{
 		$result = false;
 		if ($_REQUEST["webmethod"] != "")
@@ -64,8 +64,8 @@ final class functions
 		return $result;
 	}
 
-	// public static function brk_webmethod_return_nack is now brk_throw_nack
-	public static function brk_throw_nack($message)
+	// public static function webmethod_return_nack is now brk_throw_nack
+	public static function throw_nack($message)
 	{
 		$lasterror = json_encode(error_get_last());
 		
@@ -120,7 +120,7 @@ final class functions
 
 
 	// newguid createguid
-	public static function brk_create_guid($namespace = '') 
+	public static function create_guid($namespace = '') 
 	{
 		// credits: http://php.net/manual/en/public static function.uniqid.php
 	static $guid = '';
@@ -146,7 +146,7 @@ final class functions
 	}
 
 	// pretty_print
-	public static function brk_prettyprint_array($arr)
+	public static function prettyprint_array($arr)
 	{
 		$retStr = '<ul>';
 		if (is_array($arr))
@@ -184,7 +184,7 @@ final class functions
 		return $retStr;
 	}
 
-	public static function brk_webmethod_return($args)
+	public static function webmethod_return($args)
 	{
 		if ($args["result"] == "OK")
 		{
@@ -196,7 +196,7 @@ final class functions
 		}
 	}
 
-	public static function brk_set_jsonheader()
+	public static function set_jsonheader()
 	{	
 		if(!headers_sent())
 		{
@@ -204,14 +204,14 @@ final class functions
 		}
 	}
 
-	public static function brk_webmethod_return_ok($args)
+	public static function webmethod_return_ok($args)
 	{
 		$content = $args;
 		$content["result"] = "OK";
 		brk_webmethod_return_raw($content);
 	}
 
-	public static function brk_isutf8($string) 
+	public static function isutf8($string) 
 	{
 	if (public static function_exists("mb_check_encoding")) 
 	{
@@ -221,7 +221,7 @@ final class functions
 	return (bool)preg_match('//u', serialize($string));
 	}
 
-	public static function brk_toutf8string($in_str)
+	public static function toutf8string($in_str)
 	{
 		$in_str_v2=mb_convert_encoding($in_str,"UTF-8","auto");
 		if ($in_str_v2 === false)
@@ -245,7 +245,7 @@ final class functions
 	// 2012 06 04; GJ; in some particular situation (unclear yet when exactly) the result cannot be json encoded
 	// erroring with 'Invalid UTF-8 sequence in range'.
 	// Solution appears to be to UTF encode the input
-	public static function brk_array_toutf8string($result)
+	public static function array_toutf8string($result)
 	{
 		foreach ($result as $resultkey => $resultvalue)
 		{
@@ -273,7 +273,7 @@ final class functions
 		return $result;
 	}
 
-	public static function brk_webmethod_return_raw($args)
+	public static function webmethod_return_raw($args)
 	{
 		if (headers_sent($filename, $linenum)) 
 		{
@@ -335,13 +335,13 @@ final class functions
 		exit();
 	}
 
-	public static function brk_die()
+	public static function die()
 	{
 		error_log("nxs die");
 		die();
 	}
 
-	public static function brk_ob_start($output_callback = "")
+	public static function ob_start($output_callback = "")
 	{
 		$shouldbufferoutput = true;
 		
@@ -365,7 +365,7 @@ final class functions
 	}
 
 
-	public static function brk_ob_get_contents()
+	public static function ob_get_contents()
 	{
 		$shouldbufferoutput = true;
 			
@@ -381,7 +381,7 @@ final class functions
 		return $result;
 	}
 
-	public static function brk_ob_end_clean()
+	public static function ob_end_clean()
 	{
 		$shouldbufferoutput = true;
 			
@@ -397,7 +397,7 @@ final class functions
 		return $result;
 	}
 
-	public static function brk_ob_get_clean()
+	public static function ob_get_clean()
 	{
 		$shouldbufferoutput = true;
 		
@@ -423,7 +423,7 @@ final class functions
 	// as-if the encoding is messed up (dproost)
 	// to avoid this from happening we don't do a ob_clean when
 	// there's nothing to clean up in the first place
-	public static function brk_saveobclean()
+	public static function saveobclean()
 	{
 		if(ob_get_level() > 0)
 		{
