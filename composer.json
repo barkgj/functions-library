@@ -1,0 +1,7 @@
+{
+    "name": "barkgj/functions-library",
+    "description": "Set of basic functions used by other barkgj projects",
+    "require": {
+        "php": ">=7.4"
+    }
+}
