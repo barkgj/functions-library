@@ -2,7 +2,7 @@
 
 namespace Afnetix;
 
-final class functions
+final class Functions
 {
 	public static function getstacktrace()
 	{
