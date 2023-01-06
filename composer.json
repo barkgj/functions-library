@@ -3,5 +3,10 @@
     "description": "Set of basic functions used by other barkgj projects",
     "require": {
         "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "barkgj\\": "src/"
+        }
     }
 }

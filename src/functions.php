@@ -1,8 +1,8 @@
 <?php
 
-namespace Afnetix;
+namespace barkgj;
 
-final class Functions
+final class functions
 {
 	public static function getstacktrace()
 	{
