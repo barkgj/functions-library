@@ -185,7 +185,7 @@ final class functions
 	{
 		if ($args["result"] == "OK")
 		{
-			webmethod_return_ok($args);
+			functions::webmethod_return_ok($args);
 		}
 		else 
 		{
@@ -235,6 +235,13 @@ final class functions
 			// string needle found in haystack
 			return true;
 		}
+	}
+
+	// alias nxs_stringbeginswith
+	public static function nxs_stringstartswith($haystack, $needle)
+	{
+		$length = strlen($needle);
+		return (substr($haystack, 0, $length) === $needle);
 	}
 
 	public static function isutf8($string) 
