@@ -247,6 +247,152 @@ final class functions
 		return (bool)preg_match('//u', serialize($string));
 	}
 
+	public static function geturlcontents($args) 
+	{	
+		$url = $args["url"];
+		
+		$usecurl = true;
+		if (!function_exists('curl_version'))
+		{
+			$usecurl = false;
+		}
+		
+		$method = $args["method"];
+
+		//error_log("curl_exec; $usecurl" . $usecurl);
+
+
+		// first try curl (as file_get_contents is more likely to be blocked on hosts)
+		if ($usecurl)
+		{
+			//error_log("nxs; invoking curl; $url");
+			
+			// note; function.php already ensures curl is available
+		$session = curl_init();
+		curl_setopt($session, CURLOPT_URL, $url);
+		curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+		$timeoutsecs = $args["timeoutsecs"];
+		if (!$timeoutsecs)
+		{
+			$timeoutsecs = 300;
+		}
+			curl_setopt($session, CURLOPT_TIMEOUT, $timeoutsecs);
+			curl_setopt($session, CURLOPT_USERAGENT, 'NexusService');
+			
+			curl_setopt($session, CURLOPT_FORBID_REUSE, 1);	// 1 means true
+			curl_setopt($session, CURLOPT_FRESH_CONNECT, 1);	// 1 means true
+			
+			// 2017 07 17
+			curl_setopt($session, CURLOPT_SSL_VERIFYPEER, FALSE);	//
+			// 2017 10 06
+			curl_setopt($session, CURLOPT_SSL_VERIFYHOST, FALSE);
+			
+			//curl_setopt($session, CURLOPT_HEADER, false);
+			//curl_setopt($session, CURLOPT_FOLLOWLOCATION, true);
+			//curl_setopt($session, CURLOPT_REFERER, $url);	//
+			curl_setopt($session, CURLOPT_ENCODING, '');	// no weird encodings to be returned please, thanks :)
+			
+			$username = $args["username"];
+			$password = $args["password"];
+			if (isset($username) && isset($password))
+			{
+				curl_setopt($session, CURLOPT_USERPWD, "$username:$password");
+				curl_setopt($session, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+			}
+			
+			if (isset($method))
+			{
+				// kudos to https://lornajane.net/posts/2009/putting-data-fields-with-php-curl
+				// for example "PUT" to make a put request
+				curl_setopt($session, CURLOPT_CUSTOMREQUEST, $method);
+			}
+			
+			$postargs = $args["postargs"];
+			$postargswithmultiidenticalformfields = $args["postargswithmultiidenticalformfields"];
+			
+			if (isset($postargs) && isset($postargswithmultiidenticalformfields)) { functions::throw_nack("postargs and postargswithmultiidenticalformfields cannot be combined"); }
+			
+			if (isset($postargs))
+			{
+				// for PUT requests, http_build_query is required according to https://stackoverflow.com/questions/5043525/php-curl-http-put
+				curl_setopt($session, CURLOPT_POSTFIELDS, http_build_query($postargs));
+			}
+			
+			// if you need to post multiple values for the same key, then use
+			// kudos to https://stackoverflow.com/questions/51164837/sending-multiple-values-with-the-same-name-key-in-http-curl-post
+			// $postargswithmultiidenticalformfields = array
+			// (
+			//   array('color'=>'green'),
+			//   array('color'=>'red'),
+			//   array('third'=>'3'),
+			// );
+			if (isset($postargswithmultiidenticalformfields))
+			{
+				$postfields = implode('&', array_map('http_build_query', $postargswithmultiidenticalformfields));
+				curl_setopt($session, CURLOPT_POSTFIELDS, $postfields);
+			}
+			
+			$output = curl_exec($session);
+			
+			$haserror = false;	
+			
+			if (FALSE === $output)
+			{
+				$haserror = true;
+				global $nxs_gl_curlerror;
+				global $nxs_gl_curlerrorno;
+				$nxs_gl_curlerror = curl_error($session);
+				$nxs_gl_curlerrorno = curl_errno($session);
+		}
+			
+		curl_close($session);
+		
+		if ($haserror)
+		{
+			if ($nxs_gl_curlerrorno == 28)
+			{
+				//echo "connection timeout, retrying";
+				
+				// connection time out
+				$args["connectiontimeoutretriesleft"] = $args["connectiontimeoutretriesleft"] - 1;
+				if ($args["connectiontimeoutretriesleft"] > 0)
+				{
+					// recursion
+					$output = functions::geturlcontents($args);
+				}
+				else
+				{
+					// fatal
+					error_log("Nxs; time out for $url; $timeoutsecs");
+					return false;
+				}
+		
+				// timeout
+			}
+		}
+		}
+		else
+		{
+			if (false)
+			{
+				//
+			}
+			else if ($method == "" || $method == "GET")
+			{
+				// ok
+			}
+			else
+			{
+				functions::throw_nack("method not supported for non-curl requests ($method)");
+			}
+			
+			// if curl not available, try file_get_contents
+			$output = file_get_contents($url);
+		}
+	
+		return $output;
+	}
+
 	public static function toutf8string($in_str)
 	{
 		$in_str_v2=mb_convert_encoding($in_str,"UTF-8","auto");
