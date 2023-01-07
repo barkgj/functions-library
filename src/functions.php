@@ -247,6 +247,22 @@ final class functions
 		return (bool)preg_match('//u', serialize($string));
 	}
 
+	//kudos to https://stackoverflow.com/questions/8273804/convert-seconds-into-days-hours-minutes-and-seconds
+	public static function getsecondstohumanreadable($seconds)
+	{
+		if (is_nan($seconds))
+		{
+			$result = "not a number";
+		}
+		else
+		{
+			$dtF = new \DateTime('@0');
+			$dtT = new \DateTime("@$seconds");
+			$result = $dtF->diff($dtT)->format('%a days, %h hours, %i minutes and %s seconds');
+		}
+		return $result;
+	}
+
 	public static function geturlcontents($args) 
 	{	
 		$url = $args["url"];
