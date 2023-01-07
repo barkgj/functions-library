@@ -54,7 +54,7 @@ final class functions
 		return $existingoutput;
 	}
 
-	public static function is_nxswebservice()
+	public static function is_webservice()
 	{
 		$result = false;
 		if ($_REQUEST["webmethod"] != "")
@@ -90,9 +90,9 @@ final class functions
 			"stacktrace" => functions::getstacktrace(),
 		);
 		
-		if (functions::is_nxswebservice())
+		if (functions::is_webservice())
 		{
-			// system is processing a nxs webmethod; output in json
+			// system is processing a webmethod; output in json
 			$output=json_encode($output);
 			echo $output;
 		}
@@ -237,8 +237,8 @@ final class functions
 		}
 	}
 
-	// alias nxs_stringbeginswith
-	public static function nxs_stringstartswith($haystack, $needle)
+	// alias stringbeginswith
+	public static function stringstartswith($haystack, $needle)
 	{
 		$length = strlen($needle);
 		return (substr($haystack, 0, $length) === $needle);
@@ -288,17 +288,14 @@ final class functions
 		// first try curl (as file_get_contents is more likely to be blocked on hosts)
 		if ($usecurl)
 		{
-			//error_log("nxs; invoking curl; $url");
-			
-			// note; function.php already ensures curl is available
-		$session = curl_init();
-		curl_setopt($session, CURLOPT_URL, $url);
-		curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
-		$timeoutsecs = $args["timeoutsecs"];
-		if (!$timeoutsecs)
-		{
-			$timeoutsecs = 300;
-		}
+			$session = curl_init();
+			curl_setopt($session, CURLOPT_URL, $url);
+			curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+			$timeoutsecs = $args["timeoutsecs"];
+			if (!$timeoutsecs)
+			{
+				$timeoutsecs = 300;
+			}
 			curl_setopt($session, CURLOPT_TIMEOUT, $timeoutsecs);
 			curl_setopt($session, CURLOPT_USERAGENT, 'NexusService');
 			
@@ -362,17 +359,17 @@ final class functions
 			if (FALSE === $output)
 			{
 				$haserror = true;
-				global $nxs_gl_curlerror;
-				global $nxs_gl_curlerrorno;
-				$nxs_gl_curlerror = curl_error($session);
-				$nxs_gl_curlerrorno = curl_errno($session);
+				global $barkgj_gl_curlerror;
+				global $barkgj_gl_curlerrorno;
+				$barkgj_gl_curlerror = curl_error($session);
+				$barkgj_gl_curlerrorno = curl_errno($session);
 		}
 			
 		curl_close($session);
 		
 		if ($haserror)
 		{
-			if ($nxs_gl_curlerrorno == 28)
+			if ($barkgj_gl_curlerror == 28)
 			{
 				//echo "connection timeout, retrying";
 				
@@ -386,7 +383,7 @@ final class functions
 				else
 				{
 					// fatal
-					error_log("Nxs; time out for $url; $timeoutsecs");
+					error_log("geturlcontents; time out for $url; $timeoutsecs");
 					return false;
 				}
 		
@@ -528,12 +525,6 @@ final class functions
 		echo $output;
 		
 		exit();
-	}
-
-	public static function die()
-	{
-		error_log("nxs die");
-		die();
 	}
 
 	public static function ob_start($output_callback = "")
