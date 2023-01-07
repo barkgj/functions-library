@@ -14,13 +14,19 @@ final class functions
 	public static function getsitedatafolder()
 	{
 		$wpdocumentroot = $_SERVER['DOCUMENT_ROOT'];
-		// for example "/srv/studios/bestwebsitetemplates/2/wordpress"
-		$parentfolder = dirname($wpdocumentroot);
-		// for example "/srv/studios/bestwebsitetemplates/2/"
-		echo "getsitedatafolder:{$parentfolder}";
-		die();
+		if ($wpdocumentroot == "")
+		{
+			// CLI instead of web
+			$result = __DIR__;
+		}
+		else
+		{
+			// for example "/srv/studios/bestwebsitetemplates/2/wordpress"
+			$parentfolder = dirname($wpdocumentroot);
+			$result = $parentfolder;
+		}
 
-		// /srv/studios/bestwebsitetemplates
+		return $result;
 	}
 
 	public static function getstudio()
