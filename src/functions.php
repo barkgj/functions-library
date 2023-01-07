@@ -208,6 +208,35 @@ final class functions
 		functions::webmethod_return_raw($content);
 	}
 
+	public static function stringcontains($haystack, $needle, $ignorecasing = false)
+	{
+		if (is_array($haystack))
+		{
+			// only strings are supported, if array is passed we will assume the result should be false
+			return false;
+		}
+		
+		if ($ignorecasing === true)
+		{
+			$pos = stripos($haystack,$needle);
+		}
+		else
+		{
+			$pos = strpos($haystack,$needle);
+		}
+		
+		if($pos === false) 
+		{
+			// string needle NOT found in haystack
+			return false;
+		}
+		else 
+		{
+			// string needle found in haystack
+			return true;
+		}
+	}
+
 	public static function isutf8($string) 
 	{
 		if (function_exists("mb_check_encoding")) 
