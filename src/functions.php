@@ -73,6 +73,22 @@ final class functions
 	// public static function webmethod_return_nack is now throw_nack
 	public static function throw_nack($message)
 	{
+		$isinvokedthroughcommandlineinterface = defined('STDIN');
+		if ($isinvokedthroughcommandlineinterface)
+		{
+			echo "throw_nack: {$message}\r\n";
+			// optionally enable outputting the stacktrace
+			parse_str(implode('&', array_slice($argv, 1)), $_GET);
+			if ($_GET["stacktrace"] == true)
+			{
+				// proceed outputting the things below
+			}
+			else
+			{
+				die();
+			}
+		}
+
 		$lasterror = json_encode(error_get_last());
 		
 		// log nack on file system
@@ -104,22 +120,29 @@ final class functions
 		}
 		else
 		{
-			// system is processing regular request; output in text
-			echo "<div style='background-color: white; color: black;'>NACK;<br />";
-			echo "raw print:<br />";
-			var_dump($output);
-			echo "pretty print:<br />";
-			if (isset($_REQUEST["pp"]) && $_REQUEST["pp"] == "false")
+			if ($isinvokedthroughcommandlineinterface)
 			{
-				// in some situation the prettyprint can stall
+
 			}
 			else
 			{
-				echo "<!-- hint; in case code breaks after this comment, add querystring parameter pp with value false (pp=false) to output in non-pretty format -->";
-				echo functions::prettyprint_array($output);
+				// system is processing regular request; output in text
+				echo "<div style='background-color: white; color: black;'>NACK;<br />";
+				echo "raw print:<br />";
+				var_dump($output);
+				echo "pretty print:<br />";
+				if (isset($_REQUEST["pp"]) && $_REQUEST["pp"] == "false")
+				{
+					// in some situation the prettyprint can stall
+				}
+				else
+				{
+					echo "<!-- hint; in case code breaks after this comment, add querystring parameter pp with value false (pp=false) to output in non-pretty format -->";
+					echo functions::prettyprint_array($output);
+				}
+				echo "<br />(raw printed)<br />";
+				echo "</div>";
 			}
-			echo "<br />(raw printed)<br />";
-			echo "</div>";
 		}
 		die();
 	}
