@@ -78,7 +78,7 @@ final class functions
 		{
 			echo "throw_nack: {$message}\r\n";
 			// optionally enable outputting the stacktrace
-			if ($argv != null)
+			if (isset($argv))
 			{
 				parse_str(implode('&', array_slice($argv, 1)), $_GET);
 				if ($_GET["stacktrace"] == true)
