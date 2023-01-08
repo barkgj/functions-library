@@ -17,7 +17,7 @@ final class functions
 		if ($wpdocumentroot == "")
 		{
 			// CLI instead of web
-			$result = __DIR__;
+			$result = getcwd();
 		}
 		else
 		{
@@ -134,16 +134,8 @@ final class functions
 		}
 		else 
 		{
-			mt_srand((double)microtime()*10000);//optional for php 4.2.0 and up.
-			$charid = strtoupper(md5(uniqid(rand(), true)));
-			$hyphen = chr(45);// "-"
-			$uuid = ""
-				.substr($charid, 0, 8).$hyphen
-				.substr($charid, 8, 4).$hyphen
-				.substr($charid,12, 4).$hyphen
-				.substr($charid,16, 4).$hyphen
-				.substr($charid,20,12);
-			$result = $uuid;
+			// kudos to https://stackoverflow.com/questions/21671179/how-to-generate-a-new-guid
+			$result = sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
 		}
 		return $result;
 	}
