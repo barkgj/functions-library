@@ -63,7 +63,7 @@ final class functions
 	public static function is_webservice()
 	{
 		$result = false;
-		if ($_REQUEST["webmethod"] != "")
+		if (isset($_REQUEST["webmethod"] ) && $_REQUEST["webmethod"] != "")
 		{
 			$result = true;
 		}
