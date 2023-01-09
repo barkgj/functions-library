@@ -13,17 +13,30 @@ final class functions
 
 	public static function getsitedatafolder()
 	{
-		$wpdocumentroot = $_SERVER['DOCUMENT_ROOT'];
-		if ($wpdocumentroot == "")
+		$overridefunction = "functions__override__getsitedatafolder";
+		if (function_exists($overridefunction))
 		{
-			// CLI instead of web
-			$result = getcwd();
+			$result = call_user_func($overridefunction);
+			if ($result == "")
+			{
+				functions::throw_nack("getsitedatafolder; empty functions__override__getsitedatafolder");
+			}
+			//
 		}
 		else
 		{
-			// for example "/srv/studios/bestwebsitetemplates/2/wordpress"
-			$parentfolder = dirname($wpdocumentroot);
-			$result = $parentfolder;
+			$wpdocumentroot = $_SERVER['DOCUMENT_ROOT'];
+			if ($wpdocumentroot == "")
+			{
+				// CLI instead of web
+				$result = getcwd();
+			}
+			else
+			{
+				// for example "/srv/studios/bestwebsitetemplates/2/wordpress"
+				$parentfolder = dirname($wpdocumentroot);
+				$result = $parentfolder;
+			}
 		}
 
 		return $result;
