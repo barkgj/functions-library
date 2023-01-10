@@ -790,4 +790,66 @@ final class functions
 		}
 		return $result;
 	}
+
+	public static function translatesingle($inputstring, $prefixtoken, $postfixtoken, $lookup)
+	{
+		$key = "value";
+		$metadata = array
+		(
+			$key => $inputstring,
+		);
+		$fields = array($key);
+		$result = functions::translategeneric($metadata, $fields, $prefixtoken, $postfixtoken, $lookup);
+		$result = $result[$key];
+		return $result;
+	}
+
+	// generic function to translate certain keys from metadata (listed in "fields"),
+	// with a value marked in between the specified prefix and postfix tokens (p.e. {{ and }})
+	// with the specified lookup array (placeholders, lookup)
+	public static function translategeneric($metadata, $fields, $prefixtoken, $postfixtoken, $lookup)
+	{
+		$patterns = array();
+		$replacements = array();
+		$build = true;
+		
+		foreach ($fields as $currentfield)
+		{
+			if ($currentfield == null)
+			{
+				continue;
+			}
+			
+			$source = $metadata[$currentfield];
+			if (isset($source))
+			{
+				if (functions::stringcontains($source, $prefixtoken))
+				{				
+					// very likely there's a lookup used, let's replace the tokens!
+					
+					if ($build)
+					{
+						$build = false;
+
+						// optimization; only do this when the lookup is not yet set,
+						// note this can be further optimized					
+						foreach ($lookup as $key => $val)
+						{
+							$patterns[] = '/' . $prefixtoken . $key . $postfixtoken . '/';
+							$replacements[] = $val;
+						}
+					}
+
+					// the actual replacing of tokens for this item
+					$metadata[$currentfield] = preg_replace($patterns, $replacements, $metadata[$currentfield]);
+				}
+				else
+				{
+					// ignore
+				}
+			}
+		}
+		
+		return $metadata;
+	}
 }
