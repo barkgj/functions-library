@@ -83,6 +83,21 @@ final class functions
 		return $result;
 	}
 
+	// is_web_method is_webmethod
+	public static function iswebmethodinvocation()
+	{
+		$result = false;
+		if ($_REQUEST["nxs-webmethod-queryparameter"] == "true")
+		{
+			$result = true;
+		}
+		else if (defined('DOING_AJAX') && DOING_AJAX)
+		{
+			$result = true;
+		}
+		return $result;
+	}
+
 	// public static function webmethod_return_nack is now throw_nack
 	public static function throw_nack($message)
 	{
@@ -854,4 +869,68 @@ final class functions
 	}
 
 	
+	public static function nxs_geturicurrentpage($args = array())
+	{
+		if ($args["rewritewebmethods"] == "true")
+		{
+			if (functions::iswebmethodinvocation())
+			{
+				$result = $_REQUEST["uricurrentpage"];
+				return $result;
+			}
+		}
+		
+		// note; the "fragment" part (after "#"), is not available by definition;
+		// its something browsers use; its not send to the server (unless some clientside
+		// logic does so)
+		if(!isset($_SERVER['REQUEST_URI']))
+		{
+			$result = $_SERVER['PHP_SELF'];
+		}
+		else
+		{
+			$result = $_SERVER['REQUEST_URI'];
+		}
+		
+		return $result;
+	}
+
+	public static function geturlcurrentpage()
+	{
+		// note; the "fragment" part (after "#"), is not available by definition;
+		// its something browsers use; its not send to the server (unless some clientside
+		// logic does so)
+		$args = array
+		(
+			"rewritewebmethods" => "true",
+		);
+		$serverrequri = nxs_geturicurrentpage($args);
+		if (empty($_SERVER["HTTPS"]))
+		{
+		$s = "";
+		}
+		else
+		{
+		if ($_SERVER["HTTPS"] == "on")
+		{
+			$s = "s";
+		}
+		else
+		{
+			$s = "";
+		}
+		}
+		$protocol = nxs_strleft(strtolower($_SERVER["SERVER_PROTOCOL"]), "/").$s;
+
+		if ($_SERVER["SERVER_PORT"] == "80" || $_SERVER["SERVER_PORT"] == "443")
+		{
+		$port = "";
+		}
+		else
+		{
+		$port = ":".$_SERVER["SERVER_PORT"];
+		}
+
+		return $protocol."://".$_SERVER['HTTP_HOST'].$port.$serverrequri;   
+	}
 }
