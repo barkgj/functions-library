@@ -669,4 +669,125 @@ final class functions
 			// ignore
 		}
 	}
+
+	// return the url after setting/updating the parameter (other occurences of the same parameter are removed)
+	public static function addqueryparametertourl($url, $parameter, $value, $shouldurlencode = true, $shouldremoveparameterfirst = true)
+	{
+		if (!isset($shouldremoveparameterfirst))
+		{
+			$shouldremoveparameterfirst = true;
+		}
+		
+		if ($shouldremoveparameterfirst === true)
+		{
+			// first remove parameter (if set)
+			$url = nxs_removequeryparameterfromurl($url, $parameter);
+		}
+		
+		$result = $url;
+		if (nxs_stringcontains($url, "?"))
+		{
+			$result = $result . "&";
+		}
+		else
+		{
+			$result = $result . "?";
+		}
+		
+		if ($shouldurlencode === true)
+		{
+			$result = $result . $parameter . "=" . rawurlencode($value);
+		}
+		else
+		{
+			$result = $result . $parameter . "=" . $value;
+		}
+		
+		return $result;
+	}
+
+	// kudos to http://stackoverflow.com/questions/4937478/strip-off-url-parameter-with-php
+	public static function removequeryparameterfromurl($url, $parametertoremove)
+	{
+		$parsed = parse_url($url);
+		if (isset($parsed['query'])) 
+		{
+			$params = array();
+			foreach (explode('&', $parsed['query']) as $param) 
+			{
+			$item = explode('=', $param);
+			if ($item[0] != $parametertoremove) 
+			{
+				$params[$item[0]] = $item[1];
+			}
+			}
+			//
+			$result = '';
+			if (isset($parsed['scheme']))
+			{
+			$result .= $parsed['scheme'] . "://";
+			}
+			if (isset($parsed['host']))
+			{
+			$result .= $parsed['host'];
+			}
+			if (isset($parsed['path']))
+			{
+			$result .= $parsed['path'];
+			}
+			if (count($params) > 0) 
+			{
+			$result .= '?' . urldecode(http_build_query($params));
+			}
+			if (isset($parsed['fragment']))
+			{
+			$result .= "#" . $parsed['fragment'];
+			}
+		}
+		else
+		{
+			$result = $url;
+		}
+		return $result;
+	}
+
+	public static function removeallqueryparametersfromurl($url)
+	{
+		$parsed = parse_url($url);
+		if (isset($parsed['query'])) 
+		{
+			$params = array();
+			foreach (explode('&', $parsed['query']) as $param) 
+			{
+			$item = explode('=', $param);
+			}
+			//
+			$result = '';
+			if (isset($parsed['scheme']))
+			{
+			$result .= $parsed['scheme'] . "://";
+			}
+			if (isset($parsed['host']))
+			{
+			$result .= $parsed['host'];
+			}
+			if (isset($parsed['path']))
+			{
+			$result .= $parsed['path'];
+			}
+			if (count($params) > 0) 
+			{
+			$result .= '?' . urldecode(http_build_query($params));
+			}
+			if (isset($parsed['fragment']))
+			{
+			$result .= "#" . $parsed['fragment'];
+			}
+		}
+		else
+		{
+			$result = $url;
+		}
+		return $result;
+	}
 }
