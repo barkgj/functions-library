@@ -867,8 +867,33 @@ final class functions
 		
 		return $metadata;
 	}
-
 	
+
+	public static function ensuresessionstarted()
+	{
+		// don't start session for wp cron
+		if ( defined( 'DOING_CRON' ) )
+		{
+			return;
+		}
+		
+		// init session
+		if (!session_id()) 
+		{
+			$r = session_start();
+			if ($r == false)
+			{
+				// it fails, one (most likely) reason is that the program has already outputted content to the user, 
+				// meaning its too late to send the cookie value
+				$url = functions::geturlcurrentpage();
+				$msg = "nxs_ensure_sessionstarted; unable to start session; most likely some other script already outputted to the browser ($url)";
+				error_log($msg);
+				echo $msg;
+				die();
+			}
+	  	}
+	}
+
 	public static function nxs_geturicurrentpage($args = array())
 	{
 		if ($args["rewritewebmethods"] == "true")
