@@ -87,7 +87,7 @@ final class functions
 	public static function iswebmethodinvocation()
 	{
 		$result = false;
-		if ($_REQUEST["nxs-webmethod-queryparameter"] == "true")
+		if ($_REQUEST["afn-webmethod-queryparameter"] == "true")
 		{
 			$result = true;
 		}
@@ -696,11 +696,11 @@ final class functions
 		if ($shouldremoveparameterfirst === true)
 		{
 			// first remove parameter (if set)
-			$url = nxs_removequeryparameterfromurl($url, $parameter);
+			$url = functions::removequeryparameterfromurl($url, $parameter);
 		}
 		
 		$result = $url;
-		if (nxs_stringcontains($url, "?"))
+		if (functions::stringcontains($url, "?"))
 		{
 			$result = $result . "&";
 		}
@@ -868,7 +868,6 @@ final class functions
 		return $metadata;
 	}
 	
-
 	public static function ensuresessionstarted()
 	{
 		// don't start session for wp cron
@@ -894,7 +893,7 @@ final class functions
 	  	}
 	}
 
-	public static function nxs_geturicurrentpage($args = array())
+	public static function geturicurrentpage($args = array())
 	{
 		if ($args["rewritewebmethods"] == "true")
 		{
@@ -929,33 +928,101 @@ final class functions
 		(
 			"rewritewebmethods" => "true",
 		);
-		$serverrequri = nxs_geturicurrentpage($args);
+		$serverrequri = functions::geturicurrentpage($args);
 		if (empty($_SERVER["HTTPS"]))
-		{
-		$s = "";
-		}
-		else
-		{
-		if ($_SERVER["HTTPS"] == "on")
-		{
-			$s = "s";
-		}
-		else
 		{
 			$s = "";
 		}
+		else
+		{
+			if ($_SERVER["HTTPS"] == "on")
+			{
+				$s = "s";
+			}
+			else
+			{
+				$s = "";
+			}
 		}
-		$protocol = nxs_strleft(strtolower($_SERVER["SERVER_PROTOCOL"]), "/").$s;
+		$protocol = functions::stringleft(strtolower($_SERVER["SERVER_PROTOCOL"]), "/").$s;
 
 		if ($_SERVER["SERVER_PORT"] == "80" || $_SERVER["SERVER_PORT"] == "443")
 		{
-		$port = "";
+			$port = "";
 		}
 		else
 		{
-		$port = ":".$_SERVER["SERVER_PORT"];
+			$port = ":".$_SERVER["SERVER_PORT"];
 		}
 
 		return $protocol."://".$_SERVER['HTTP_HOST'].$port.$serverrequri;   
 	}
+
+	
+	// escape post, request, n ensure, escape
+	public static function ensureslashesstripped()
+	{
+		global $barkgj_strippedlashes;
+		if (!isset($barkgj_strippedlashes))
+		{
+			$barkgj_strippedlashes = true;
+			
+			// see https://stackoverflow.com/questions/8949768/with-magic-quotes-disabled-why-does-php-wordpress-continue-to-auto-escape-my
+			$_GET       = array_map('stripslashes_deep', $_GET);
+			$_POST      = array_map('stripslashes_deep', $_POST);
+			$_COOKIE    = array_map('stripslashes_deep', $_COOKIE);
+			$_SERVER    = array_map('stripslashes_deep', $_SERVER);
+			$_REQUEST   = array_map('stripslashes_deep', $_REQUEST);
+		}
+	}
+
+	public static function stringleft($s1, $s2) 
+	{
+		return substr($s1, 0, strpos($s1, $s2));
+	}
+
+	// taken from http://stackoverflow.com/questions/79960/how-to-truncate-a-string-in-php-to-the-word-closest-to-a-certain-number-of-chara
+	public static function stringtruncate($string, $your_desired_width)
+	{
+		$parts = preg_split('/([\s\n\r]+)/', $string, 0, PREG_SPLIT_DELIM_CAPTURE);
+		$parts_count = count($parts);
+
+		$length = 0;
+		$last_part = 0;
+		for (; $last_part < $parts_count; ++$last_part) {
+			$length += strlen($parts[$last_part]);
+			if ($length > $your_desired_width) { break; }
+		}
+
+		return implode(array_slice($parts, 0, $last_part));
+	}
+
+	// kudos to http://stackoverflow.com/questions/3835636/php-replace-last-occurence-of-a-string-in-a-string
+	public static function stringlastreplace($search, $replace, $subject)
+	{
+		$pos = strrpos($subject, $search);
+
+		if($pos !== false)
+		{
+			$subject = substr_replace($subject, $replace, $pos, strlen($search));
+		}
+
+		return $subject;
+	}
+
+	// kudos to http://stackoverflow.com/questions/3225538/delete-first-instance-of-string-with-php
+	public static function stringreplacefirst($input, $search, $replacement)
+	{
+		$pos = stripos($input, $search);
+		if($pos === false)
+		{
+			return $input;
+		}
+		else
+		{
+			$result = substr_replace($input, $replacement, $pos, strlen($search));
+			return $result;
+		}
+	}
 }
+
