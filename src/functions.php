@@ -42,11 +42,11 @@ final class functions
 		$sep = DIRECTORY_SEPARATOR;
 		if ($ensuretrailingdirectoryseperator)
 		{
-			$result = rtrim($result, $sep);
+			$result = rtrim($result, $sep) . $sep;
 		}
 		else
 		{
-			$result = rtrim($result, $sep) . $sep;
+			$result = rtrim($result, $sep);
 		}
 
 		return $result;
