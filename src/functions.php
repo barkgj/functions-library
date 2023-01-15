@@ -11,7 +11,7 @@ final class functions
 		return $result;
 	}
 
-	public static function getsitedatafolder()
+	public static function getsitedatafolder($ensuretrailingdirectoryseperator = false)
 	{
 		$overridefunction = "functions__override__getsitedatafolder";
 		if (function_exists($overridefunction))
@@ -37,6 +37,16 @@ final class functions
 				$parentfolder = dirname($wpdocumentroot);
 				$result = $parentfolder;
 			}
+		}
+
+		$sep = DIRECTORY_SEPARATOR;
+		if ($ensuretrailingdirectoryseperator)
+		{
+			$result = rtrim($result, $sep);
+		}
+		else
+		{
+			$result = rtrim($result, $sep) . $sep;
 		}
 
 		return $result;
