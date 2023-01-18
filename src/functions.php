@@ -52,6 +52,14 @@ final class functions
 		return $result;
 	}
 
+	// homeurl home_url homepage_url homepageurl gethome get_home site home site_home site_url homepage
+	public static function geturlhome()
+	{
+		$result = get_bloginfo('url') . "/";
+		
+		return $result; 
+	}
+
 	public static function getstudio()
 	{
 		// for example /srv/studios/bestwebsitetemplates
