@@ -282,6 +282,16 @@ final class functions
 		functions::webmethod_return_raw($content);
 	}
 
+	public static function stringendswith($haystack, $needle)
+	{
+	  $length = strlen($needle);
+	  if ($length == 0) {
+		  return true;
+	  }
+	
+	  return (substr($haystack, -$length) === $needle);
+	}
+
 	public static function stringcontains($haystack, $needle, $ignorecasing = false)
 	{
 		if (is_array($haystack))
